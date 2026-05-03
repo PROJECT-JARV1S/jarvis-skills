@@ -1,0 +1,28 @@
+# Environment variables
+.env
+
+# Cache files
+.cache
+
+# Tool/download caches
+.tools_cache/
+
+# Editor metadata
+.vscode/
+
+# Runtime logs
+*.log
+*.out.log
+*.err.log
+
+# Rust build artifacts
+rust-mcp-server/target/
+rust-mcp-server/target_alt*/
+rust-mcp-server/target_alt2/
+rust-mcp-server/target_alt3/
+rust-mcp-server/target*/
+**/target/
+
+# Local CLI state
+.gemini/
+.copilot/
