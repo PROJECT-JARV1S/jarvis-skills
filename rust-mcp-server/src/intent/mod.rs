@@ -168,7 +168,7 @@ mod tests {
         let decision = route_intent(text);
         assert_eq!(decision.intent, "GENERAL_QUERY");
         assert_eq!(decision.tool_name, None);
-        assert_eq!(decision.should_execute, false);
+        assert!(!decision.should_execute);
     }
 
     #[test]
@@ -176,6 +176,6 @@ mod tests {
         let text = "";
         let decision = route_intent(text);
         assert_eq!(decision.intent, "UNKNOWN");
-        assert_eq!(decision.should_execute, false);
+        assert!(!decision.should_execute);
     }
 }

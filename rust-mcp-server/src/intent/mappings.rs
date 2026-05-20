@@ -1,7 +1,7 @@
+use crate::intent::{IntentType, RouteDecision};
 use regex::Regex;
 use serde_json::{Map, Value};
 use std::path::Path;
-use crate::intent::{IntentType, RouteDecision};
 
 pub fn map_params_to_args(
     intent_type: &IntentType,
@@ -42,16 +42,28 @@ pub fn map_params_to_args(
         }
         IntentType::SystemInfo => {
             let mut include = Vec::new();
-            if Regex::new(r"(?i)\b(cpu|processor)\b").unwrap().is_match(text_lower) {
+            if Regex::new(r"(?i)\b(cpu|processor)\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 include.push(Value::String("cpu".to_string()));
             }
-            if Regex::new(r"(?i)\b(ram|memory)\b").unwrap().is_match(text_lower) {
+            if Regex::new(r"(?i)\b(ram|memory)\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 include.push(Value::String("ram".to_string()));
             }
-            if Regex::new(r"(?i)\b(storage|disk|drive|ssd|space)\b").unwrap().is_match(text_lower) {
+            if Regex::new(r"(?i)\b(storage|disk|drive|ssd|space)\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 include.push(Value::String("storage".to_string()));
             }
-            if Regex::new(r"(?i)\b(network|internet|wifi|wi-fi|connected|connection)\b").unwrap().is_match(text_lower) {
+            if Regex::new(r"(?i)\b(network|internet|wifi|wi-fi|connected|connection)\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 include.push(Value::String("network".to_string()));
             }
             if !include.is_empty() {
@@ -82,7 +94,10 @@ pub fn map_params_to_args(
                 }
             };
 
-            if Regex::new(r"(?i)\bdownloads?\b").unwrap().is_match(text_lower) {
+            if Regex::new(r"(?i)\bdownloads?\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 if let Some(p) = dirs::download_dir() {
                     path_str = Some(p.to_string_lossy().to_string());
                 } else if let Some(home) = dirs::home_dir() {
@@ -94,7 +109,10 @@ pub fn map_params_to_args(
                 } else if let Some(home) = dirs::home_dir() {
                     path_str = Some(home.join("Desktop").to_string_lossy().to_string());
                 }
-            } else if Regex::new(r"(?i)\bdocuments?\b").unwrap().is_match(text_lower) {
+            } else if Regex::new(r"(?i)\bdocuments?\b")
+                .unwrap()
+                .is_match(text_lower)
+            {
                 if let Some(p) = dirs::document_dir() {
                     path_str = Some(p.to_string_lossy().to_string());
                 } else if let Some(home) = dirs::home_dir() {
@@ -103,7 +121,11 @@ pub fn map_params_to_args(
             }
 
             if path_str.is_none() {
-                for pattern in &[r"(?i)\b([a-z])\s*:", r"(?i)\bdrive\s*([a-z])\b", r"(?i)\b([a-z])\s*drive\b"] {
+                for pattern in &[
+                    r"(?i)\b([a-z])\s*:",
+                    r"(?i)\bdrive\s*([a-z])\b",
+                    r"(?i)\b([a-z])\s*drive\b",
+                ] {
                     if let Some(caps) = Regex::new(pattern).unwrap().captures(text_lower) {
                         if let Some(m) = caps.get(1) {
                             if let Some(drive) = drive_root_fn(m.as_str(), false) {
@@ -116,7 +138,10 @@ pub fn map_params_to_args(
             }
 
             if path_str.is_none() {
-                if let Some(caps) = Regex::new(r"(?i)\b(?:inside|in)\s*(?:the\s*)?([a-z])\b").unwrap().captures(text_lower) {
+                if let Some(caps) = Regex::new(r"(?i)\b(?:inside|in)\s*(?:the\s*)?([a-z])\b")
+                    .unwrap()
+                    .captures(text_lower)
+                {
                     if let Some(m) = caps.get(1) {
                         if let Some(drive) = drive_root_fn(m.as_str(), true) {
                             path_str = Some(drive);
@@ -135,18 +160,30 @@ pub fn map_params_to_args(
 
             final_args.insert("path".to_string(), Value::String(path_str.unwrap()));
 
-            let is_hidden = raw_params.get("include_hidden").and_then(|v| v.as_str()) == Some("true");
+            let is_hidden =
+                raw_params.get("include_hidden").and_then(|v| v.as_str()) == Some("true");
             final_args.insert("include_hidden".to_string(), Value::Bool(is_hidden));
             final_args.insert("max_entries".to_string(), Value::Number(200.into()));
 
-            let has_folders = Regex::new(r"(?i)\bfolders?\b").unwrap().is_match(text_lower);
+            let has_folders = Regex::new(r"(?i)\bfolders?\b")
+                .unwrap()
+                .is_match(text_lower);
             let has_files = Regex::new(r"(?i)\bfiles?\b").unwrap().is_match(text_lower);
 
-            final_args.insert("directories_only".to_string(), Value::Bool(has_folders && !has_files));
-            final_args.insert("files_only".to_string(), Value::Bool(has_files && !has_folders));
+            final_args.insert(
+                "directories_only".to_string(),
+                Value::Bool(has_folders && !has_files),
+            );
+            final_args.insert(
+                "files_only".to_string(),
+                Value::Bool(has_files && !has_folders),
+            );
         }
         IntentType::FileOrganization => {
-            let folder_alias = raw_params.get("target_folder").and_then(|v| v.as_str()).unwrap_or("downloads");
+            let folder_alias = raw_params
+                .get("target_folder")
+                .and_then(|v| v.as_str())
+                .unwrap_or("downloads");
             let home = dirs::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
 
             let path_val = match folder_alias {
@@ -155,10 +192,16 @@ pub fn map_params_to_args(
                 "documents" => home.join("Documents"),
                 _ => home.join("Downloads"),
             };
-            final_args.insert("path".to_string(), Value::String(path_val.to_string_lossy().to_string()));
+            final_args.insert(
+                "path".to_string(),
+                Value::String(path_val.to_string_lossy().to_string()),
+            );
 
             if !final_args.contains_key("strategy") {
-                final_args.insert("strategy".to_string(), Value::String("extension".to_string()));
+                final_args.insert(
+                    "strategy".to_string(),
+                    Value::String("extension".to_string()),
+                );
             }
 
             let is_dry = raw_params.get("dry_run").and_then(|v| v.as_str()) != Some("false");

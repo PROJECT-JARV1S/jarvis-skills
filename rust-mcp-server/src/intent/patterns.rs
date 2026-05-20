@@ -1,6 +1,6 @@
+use super::IntentType;
 use regex::Regex;
 use std::sync::OnceLock;
-use super::IntentType;
 
 pub enum ParamExtractor {
     List(Vec<(Regex, &'static str)>),
@@ -14,12 +14,24 @@ impl IntentType {
                 static RE: OnceLock<Vec<Regex>> = OnceLock::new();
                 RE.get_or_init(|| {
                     vec![
-                        Regex::new(r"(?i)(show|list|see|view)\s*(the)?\s*(content|contents|folders|files)").unwrap(),
-                        Regex::new(r"(?i)(what('s|s| is)\s*(inside|in))\s*(the)?\s*(drive|folder)").unwrap(),
-                        Regex::new(r"(?i)(folders?|files?)\s*(inside|in)\s*(the)?\s*(drive|folder)").unwrap(),
-                        Regex::new(r"(?i)(list|show)\s*(folders?|files?)\s*(in|inside)\s*[a-z]:").unwrap(),
-                        Regex::new(r"(?i)(drive)\s*[a-z]\s*(content|contents|folders|files)").unwrap(),
-                        Regex::new(r"(?i)(content|contents|contend)\s*(in|inside|of)\s*(the)?\s*[a-z]\b").unwrap(),
+                        Regex::new(
+                            r"(?i)(show|list|see|view)\s*(the)?\s*(content|contents|folders|files)",
+                        )
+                        .unwrap(),
+                        Regex::new(r"(?i)(what('s|s| is)\s*(inside|in))\s*(the)?\s*(drive|folder)")
+                            .unwrap(),
+                        Regex::new(
+                            r"(?i)(folders?|files?)\s*(inside|in)\s*(the)?\s*(drive|folder)",
+                        )
+                        .unwrap(),
+                        Regex::new(r"(?i)(list|show)\s*(folders?|files?)\s*(in|inside)\s*[a-z]:")
+                            .unwrap(),
+                        Regex::new(r"(?i)(drive)\s*[a-z]\s*(content|contents|folders|files)")
+                            .unwrap(),
+                        Regex::new(
+                            r"(?i)(content|contents|contend)\s*(in|inside|of)\s*(the)?\s*[a-z]\b",
+                        )
+                        .unwrap(),
                     ]
                 })
             }
@@ -113,11 +125,20 @@ impl IntentType {
                             ParamExtractor::List(vec![
                                 (Regex::new(r"(?i)\bunmute\b").unwrap(), "unmute"),
                                 (Regex::new(r"(?i)\bmute\b").unwrap(), "mute"),
-                                (Regex::new(r"(?i)(up|louder|higher|increase|raise)").unwrap(), "up"),
-                                (Regex::new(r"(?i)(down|quieter|lower|decrease)").unwrap(), "down"),
+                                (
+                                    Regex::new(r"(?i)(up|louder|higher|increase|raise)").unwrap(),
+                                    "up",
+                                ),
+                                (
+                                    Regex::new(r"(?i)(down|quieter|lower|decrease)").unwrap(),
+                                    "down",
+                                ),
                             ]),
                         ),
-                        ("level", ParamExtractor::Regex(Regex::new(r"(?i)(\d+)\s*(%|percent)?").unwrap())),
+                        (
+                            "level",
+                            ParamExtractor::Regex(Regex::new(r"(?i)(\d+)\s*(%|percent)?").unwrap()),
+                        ),
                     ]
                 })
             }
@@ -137,7 +158,10 @@ impl IntentType {
                             "state",
                             ParamExtractor::List(vec![
                                 (Regex::new(r"(?i)\b(on|enable|connect)\b").unwrap(), "on"),
-                                (Regex::new(r"(?i)\b(off|disable|disconnect)\b").unwrap(), "off"),
+                                (
+                                    Regex::new(r"(?i)\b(off|disable|disconnect)\b").unwrap(),
+                                    "off",
+                                ),
                             ]),
                         ),
                     ]
@@ -166,8 +190,14 @@ impl IntentType {
                         (
                             "dry_run",
                             ParamExtractor::List(vec![
-                                (Regex::new(r"(?i)\b(preview|dry\s*run|simulate)\b").unwrap(), "true"),
-                                (Regex::new(r"(?i)\b(now|apply|execute|do it)\b").unwrap(), "false"),
+                                (
+                                    Regex::new(r"(?i)\b(preview|dry\s*run|simulate)\b").unwrap(),
+                                    "true",
+                                ),
+                                (
+                                    Regex::new(r"(?i)\b(now|apply|execute|do it)\b").unwrap(),
+                                    "false",
+                                ),
                             ]),
                         ),
                     ]
@@ -178,7 +208,10 @@ impl IntentType {
                 EX.get_or_init(|| {
                     vec![(
                         "include_hidden",
-                        ParamExtractor::List(vec![(Regex::new(r"(?i)\b(hidden|all files)\b").unwrap(), "true")]),
+                        ParamExtractor::List(vec![(
+                            Regex::new(r"(?i)\b(hidden|all files)\b").unwrap(),
+                            "true",
+                        )]),
                     )]
                 })
             }
