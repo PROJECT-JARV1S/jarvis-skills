@@ -5,7 +5,7 @@ Rust MCP server for JARVIS hardware, system, and file tools.
 ## Architecture
 
 - **Runtime:** Rust (`tokio` + `axum`)
-- **Transport:** HTTP JSON-RPC (`/jsonrpc`) and stdio (`--stdio`)
+- **Transport:** HTTP JSON-RPC (`/jsonrpc`, `/mcp`) and stdio (`--stdio`)
 - **Default bind:** `127.0.0.1:5050`
 - **Tool catalog:** returned by `tools/list`, consumed by `jarvis-chat`
 
@@ -24,7 +24,7 @@ HTTP mode:
 cargo run --release
 ```
 
-stdio mode (for MCP clients):
+stdio mode (legacy, optional):
 
 ```bash
 .\target\release\jarvis-rust-mcp-server.exe --stdio
@@ -59,7 +59,7 @@ This repo includes:
 - `mcp.json`
 - `.mcp.json`
 
-Both are configured for stdio launch of `jarvis-rust-mcp-server.exe`.
+Both are configured for HTTP URLs by default.
 
 ## Troubleshooting
 

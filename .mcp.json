@@ -1,21 +1,15 @@
 {
   "mcpServers": {
     "jarvis-skills": {
-      "type": "local",
-      "command": "rust-mcp-server/target/release/jarvis-rust-mcp-server.exe",
-      "args": [
-        "--stdio"
-      ],
+      "type": "http",
+      "url": "http://127.0.0.1:5050/mcp",
       "tools": [
         "*"
       ]
     },
     "spotify": {
-      "type": "local",
-      "command": "node",
-      "args": [
-        "spotify-mcp-server/build/index.js"
-      ],
+      "type": "http",
+      "url": "http://127.0.0.1:3000/mcp",
       "tools": [
         "*"
       ]
