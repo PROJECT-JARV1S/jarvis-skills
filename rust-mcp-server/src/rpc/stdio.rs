@@ -1,7 +1,7 @@
+use super::{handle_jsonrpc, jsonrpc_error, RpcMode};
+use crate::AppState;
 use serde_json::Value;
 use tokio::io::{self, AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
-use crate::AppState;
-use super::{handle_jsonrpc, jsonrpc_error, RpcMode};
 
 pub async fn run_stdio(state: AppState) -> Result<(), String> {
     let stdin = io::stdin();
@@ -122,7 +122,8 @@ async fn write_stdio_message(stdout: &mut io::Stdout, payload: &Value) -> Result
 }
 
 async fn write_stdio_jsonline(stdout: &mut io::Stdout, payload: &Value) -> Result<(), String> {
-    let mut body = serde_json::to_vec(payload).map_err(|e| format!("Failed to encode JSON: {e}"))?;
+    let mut body =
+        serde_json::to_vec(payload).map_err(|e| format!("Failed to encode JSON: {e}"))?;
     body.push(b'\n');
 
     stdout

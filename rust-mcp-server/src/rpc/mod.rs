@@ -1,8 +1,8 @@
-use serde_json::{json, Value};
-use tracing::{warn};
-use crate::{AppState};
+use crate::AppState;
 use jarvis_rust_mcp_server::intent;
 use jarvis_rust_mcp_server::tools;
+use serde_json::{json, Value};
+use tracing::warn;
 
 pub mod stdio;
 pub use stdio::run_stdio;
@@ -50,7 +50,9 @@ pub async fn handle_jsonrpc(payload: &Value, state: &AppState, mode: RpcMode) ->
         "notifications/initialized" => jsonrpc_success(id, json!({})),
         "ping" => jsonrpc_success(id, json!({})),
         "tools/list" => match mode {
-            RpcMode::HttpCompat => jsonrpc_success(id, json!({ "tools": tools::tool_definitions() })),
+            RpcMode::HttpCompat => {
+                jsonrpc_success(id, json!({ "tools": tools::tool_definitions() }))
+            }
             RpcMode::StdioMcp => jsonrpc_success(id, json!({ "tools": tools::tool_definitions() })),
         },
         "tools/call" => {
@@ -78,13 +80,16 @@ pub async fn handle_jsonrpc(payload: &Value, state: &AppState, mode: RpcMode) ->
         "jarvis/route" => {
             let text = params.get("text").and_then(Value::as_str).unwrap_or("");
             let decision = intent::route_intent(text);
-            jsonrpc_success(id, json!({
-                "intent": decision.intent,
-                "confidence": decision.confidence,
-                "tool_name": decision.tool_name,
-                "arguments": decision.arguments,
-                "should_execute": decision.should_execute,
-            }))
+            jsonrpc_success(
+                id,
+                json!({
+                    "intent": decision.intent,
+                    "confidence": decision.confidence,
+                    "tool_name": decision.tool_name,
+                    "arguments": decision.arguments,
+                    "should_execute": decision.should_execute,
+                }),
+            )
         }
         "jarvis/route_and_call" => {
             let text = params.get("text").and_then(Value::as_str).unwrap_or("");
