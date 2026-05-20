@@ -1,23 +1,17 @@
-use std::{
-    io::ErrorKind,
-    process::Command,
-};
+use std::{io::ErrorKind, process::Command};
 
 pub fn run_command(program: &str, args: &[&str]) -> Result<String, String> {
-    let output = Command::new(program)
-        .args(args)
-        .output()
-        .map_err(|e| {
-            if e.kind() == ErrorKind::NotFound {
-                if let Some(hint) = install_hint(program) {
-                    format!("Required command '{program}' not found. {hint}")
-                } else {
-                    format!("Required command '{program}' not found in PATH.")
-                }
+    let output = Command::new(program).args(args).output().map_err(|e| {
+        if e.kind() == ErrorKind::NotFound {
+            if let Some(hint) = install_hint(program) {
+                format!("Required command '{program}' not found. {hint}")
             } else {
-                format!("Failed to run '{program}': {e}")
+                format!("Required command '{program}' not found in PATH.")
             }
-        })?;
+        } else {
+            format!("Failed to run '{program}': {e}")
+        }
+    })?;
 
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).to_string())

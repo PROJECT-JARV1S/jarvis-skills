@@ -6,7 +6,10 @@ use std::{
 
 use serde_json::{json, Map, Value};
 
-pub async fn list_directory(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn list_directory(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let path_str = args
         .get("path")
         .and_then(Value::as_str)
@@ -24,7 +27,10 @@ pub async fn list_directory(args: &Map<String, Value>, _state: &crate::AppState)
         .get("directories_only")
         .and_then(Value::as_bool)
         .unwrap_or(false);
-    let files_only = args.get("files_only").and_then(Value::as_bool).unwrap_or(false);
+    let files_only = args
+        .get("files_only")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
 
     if directories_only && files_only {
         return Err("directories_only and files_only cannot both be true".to_string());
@@ -32,7 +38,10 @@ pub async fn list_directory(args: &Map<String, Value>, _state: &crate::AppState)
 
     let base = fs::canonicalize(path_str).map_err(|e| format!("Invalid path '{path_str}': {e}"))?;
     if !base.is_dir() {
-        return Err(format!("Path is not a directory: {}", base.to_string_lossy()));
+        return Err(format!(
+            "Path is not a directory: {}",
+            base.to_string_lossy()
+        ));
     }
 
     ensure_allowed_listing_root(&base)?;
@@ -135,11 +144,11 @@ fn listing_allowed_roots() -> Result<Vec<PathBuf>, String> {
     #[cfg(target_os = "windows")]
     {
         let mut roots = Vec::new();
-        
+
         // Add standard user directories that work on any Windows machine
         if let Ok(user_profile) = env::var("USERPROFILE") {
             let profile_path = PathBuf::from(&user_profile);
-            
+
             // Add common user directories
             let common_dirs = vec![
                 profile_path.join("Downloads"),
@@ -147,7 +156,7 @@ fn listing_allowed_roots() -> Result<Vec<PathBuf>, String> {
                 profile_path.join("Desktop"),
                 profile_path.clone(),
             ];
-            
+
             for dir in common_dirs {
                 if dir.exists() {
                     if let Ok(c) = fs::canonicalize(&dir) {
@@ -158,7 +167,7 @@ fn listing_allowed_roots() -> Result<Vec<PathBuf>, String> {
                 }
             }
         }
-        
+
         // Also allow project directory if it's defined
         if let Ok(project_root) = env::var("JARVIS_PROJECT_ROOT") {
             let project_path = PathBuf::from(&project_root);
@@ -170,11 +179,11 @@ fn listing_allowed_roots() -> Result<Vec<PathBuf>, String> {
                 }
             }
         }
-        
+
         if roots.is_empty() {
             return Err("Could not resolve any allowed Windows directories. Set USERPROFILE or JARVIS_PROJECT_ROOT".to_string());
         }
-        return Ok(roots);
+        Ok(roots)
     }
 
     #[cfg(not(target_os = "windows"))]

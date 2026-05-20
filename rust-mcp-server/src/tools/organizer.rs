@@ -1,10 +1,13 @@
-use serde_json::{json, Map, Value};
-use super::path_security::ensure_allowed_root;
-use super::file_collector::collect_files;
 use super::categorizer::plan_moves;
 use super::collision_handler::unique_path_if_exists;
+use super::file_collector::collect_files;
+use super::path_security::ensure_allowed_root;
+use serde_json::{json, Map, Value};
 
-pub async fn organize_folder(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn organize_folder(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let path_str = args
         .get("path")
         .and_then(Value::as_str)
@@ -13,7 +16,10 @@ pub async fn organize_folder(args: &Map<String, Value>, _state: &crate::AppState
         .get("strategy")
         .and_then(Value::as_str)
         .unwrap_or("extension");
-    let recursive = args.get("recursive").and_then(Value::as_bool).unwrap_or(false);
+    let recursive = args
+        .get("recursive")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
     let dry_run = args.get("dry_run").and_then(Value::as_bool).unwrap_or(true);
     let include_hidden = args
         .get("include_hidden")
@@ -24,7 +30,8 @@ pub async fn organize_folder(args: &Map<String, Value>, _state: &crate::AppState
         .and_then(Value::as_bool)
         .unwrap_or(false);
 
-    let base = std::fs::canonicalize(path_str).map_err(|e| format!("Invalid path '{path_str}': {e}"))?;
+    let base =
+        std::fs::canonicalize(path_str).map_err(|e| format!("Invalid path '{path_str}': {e}"))?;
     ensure_allowed_root(&base)?;
 
     let files = collect_files(&base, recursive, include_hidden)?;
@@ -47,7 +54,10 @@ pub async fn organize_folder(args: &Map<String, Value>, _state: &crate::AppState
     for op in ops {
         if let Some(parent) = op.to.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
-                errors.push(format!("Failed to create '{}': {e}", parent.to_string_lossy()));
+                errors.push(format!(
+                    "Failed to create '{}': {e}",
+                    parent.to_string_lossy()
+                ));
                 continue;
             }
         }

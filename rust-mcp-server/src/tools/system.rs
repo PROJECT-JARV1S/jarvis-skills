@@ -1,7 +1,10 @@
 use serde_json::{json, Map, Value};
 use sysinfo::{Disks, Networks, System};
 
-pub async fn get_system_info(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn get_system_info(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let include = args
         .get("include")
         .and_then(Value::as_str)
@@ -12,7 +15,14 @@ pub async fn get_system_info(args: &Map<String, Value>, _state: &crate::AppState
                 .map(str::to_string)
                 .collect::<Vec<String>>()
         })
-        .unwrap_or_else(|| vec!["cpu".into(), "ram".into(), "storage".into(), "network".into()]);
+        .unwrap_or_else(|| {
+            vec![
+                "cpu".into(),
+                "ram".into(),
+                "storage".into(),
+                "network".into(),
+            ]
+        });
 
     let mut system = System::new_all();
     system.refresh_all();

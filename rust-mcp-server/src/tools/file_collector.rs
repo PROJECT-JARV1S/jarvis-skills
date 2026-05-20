@@ -1,8 +1,15 @@
-use std::{fs, path::{Path, PathBuf}};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use walkdir::WalkDir;
 
 /// Collect files from a directory with optional recursion and hidden file filtering.
-pub fn collect_files(base: &Path, recursive: bool, include_hidden: bool) -> Result<Vec<PathBuf>, String> {
+pub fn collect_files(
+    base: &Path,
+    recursive: bool,
+    include_hidden: bool,
+) -> Result<Vec<PathBuf>, String> {
     let mut files = Vec::new();
     if recursive {
         for entry in WalkDir::new(base).into_iter().filter_map(Result::ok) {

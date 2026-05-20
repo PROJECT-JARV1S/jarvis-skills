@@ -2,7 +2,10 @@ use serde_json::{json, Map, Value};
 
 use super::shell::run_command;
 
-pub async fn control_bluetooth_device(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn control_bluetooth_device(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let action = args
         .get("action")
         .and_then(Value::as_str)
@@ -24,10 +27,16 @@ pub async fn control_bluetooth_device(args: &Map<String, Value>, _state: &crate:
                 }))
             }
             "connect" | "disconnect" => {
-                let name_query = args.get("device_name").and_then(Value::as_str).map(str::to_lowercase);
+                let name_query = args
+                    .get("device_name")
+                    .and_then(Value::as_str)
+                    .map(str::to_lowercase);
                 let instance_id = args.get("instance_id").and_then(Value::as_str);
                 if name_query.is_none() && instance_id.is_none() {
-                    return Err("For connect/disconnect, provide 'device_name' or 'instance_id'.".to_string());
+                    return Err(
+                        "For connect/disconnect, provide 'device_name' or 'instance_id'."
+                            .to_string(),
+                    );
                 }
 
                 let all_devices = list_bluetooth_devices(include_system)?;
@@ -35,7 +44,11 @@ pub async fn control_bluetooth_device(args: &Map<String, Value>, _state: &crate:
                     .into_iter()
                     .filter(|d| {
                         let id_match = instance_id
-                            .and_then(|id| d.get("instance_id").and_then(Value::as_str).map(|v| v.eq_ignore_ascii_case(id)))
+                            .and_then(|id| {
+                                d.get("instance_id")
+                                    .and_then(Value::as_str)
+                                    .map(|v| v.eq_ignore_ascii_case(id))
+                            })
                             .unwrap_or(false);
                         let name_match = name_query
                             .as_ref()
@@ -138,7 +151,9 @@ pub async fn control_bluetooth_device(args: &Map<String, Value>, _state: &crate:
                     "results": results
                 }))
             }
-            _ => Err(format!("Unsupported action: {action}. Use list/connect/disconnect.")),
+            _ => Err(format!(
+                "Unsupported action: {action}. Use list/connect/disconnect."
+            )),
         }
     }
 
@@ -152,10 +167,19 @@ pub async fn control_bluetooth_device(args: &Map<String, Value>, _state: &crate:
 
 #[cfg(target_os = "windows")]
 fn toggle_device_instance(instance_id: &str, enable: bool) -> Result<(), String> {
-    let ps_action = if enable { "Enable-PnpDevice" } else { "Disable-PnpDevice" };
-    let pnp_action = if enable { "enable-device" } else { "disable-device" };
+    let ps_action = if enable {
+        "Enable-PnpDevice"
+    } else {
+        "Disable-PnpDevice"
+    };
+    let pnp_action = if enable {
+        "enable-device"
+    } else {
+        "disable-device"
+    };
     let escaped = instance_id.replace('\'', "''");
-    let script = format!("{ps_action} -InstanceId '{escaped}' -Confirm:$false -ErrorAction Stop | Out-Null");
+    let script =
+        format!("{ps_action} -InstanceId '{escaped}' -Confirm:$false -ErrorAction Stop | Out-Null");
 
     match run_command("powershell", &["-NoProfile", "-Command", &script]) {
         Ok(_) => Ok(()),

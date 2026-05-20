@@ -1,4 +1,7 @@
-use std::{env, fs, path::{Path, PathBuf}};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 
 /// Verify that a path is within allowed root directories.
 pub fn ensure_allowed_root(path: &Path) -> Result<(), String> {
@@ -67,10 +70,10 @@ pub fn allowed_roots() -> Result<Vec<PathBuf>, String> {
             canon.push(r);
         }
     }
-    
+
     // Deduplicate
     canon.sort();
     canon.dedup();
-    
+
     Ok(canon)
 }

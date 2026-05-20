@@ -2,7 +2,10 @@ use serde_json::{json, Map, Value};
 
 use super::shell::run_command;
 
-pub async fn toggle_network(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn toggle_network(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let interface = args
         .get("interface")
         .and_then(Value::as_str)
@@ -21,26 +24,37 @@ pub async fn toggle_network(args: &Map<String, Value>, _state: &crate::AppState)
                 Ok(json!({"interface":"wifi","enabled":enable}))
             }
             "ethernet" => {
-                let _ = run_command("netsh", &["interface", "set", "interface", "Ethernet", action])?;
+                let _ = run_command(
+                    "netsh",
+                    &["interface", "set", "interface", "Ethernet", action],
+                )?;
                 Ok(json!({"interface":"ethernet","enabled":enable}))
             }
             "bluetooth" => {
-                let ps_action = if enable { "Enable-PnpDevice" } else { "Disable-PnpDevice" };
-                let pnp_action = if enable { "enable-device" } else { "disable-device" };
+                let ps_action = if enable {
+                    "Enable-PnpDevice"
+                } else {
+                    "Disable-PnpDevice"
+                };
+                let pnp_action = if enable {
+                    "enable-device"
+                } else {
+                    "disable-device"
+                };
                 let script = bluetooth_toggle_script(ps_action, pnp_action, enable);
                 match run_command("powershell", &["-NoProfile", "-Command", &script]) {
                     Ok(_) => {}
                     Err(err) => {
                         let normalized = normalize_bluetooth_toggle_error(&err);
                         let lowered = normalized.to_ascii_lowercase();
-                        let needs_elevation =
-                            lowered.contains("generic failure")
-                                || lowered.contains("access is denied")
-                                || lowered.contains("pnputil exit code 50");
+                        let needs_elevation = lowered.contains("generic failure")
+                            || lowered.contains("access is denied")
+                            || lowered.contains("pnputil exit code 50");
                         if needs_elevation {
                             // Retry once via UAC elevation for environments where device toggles
                             // require an administrator token.
-                            let elevated = elevated_bluetooth_toggle_script(ps_action, pnp_action, enable);
+                            let elevated =
+                                elevated_bluetooth_toggle_script(ps_action, pnp_action, enable);
                             if let Err(elevated_err) = run_command(
                                 "powershell",
                                 &[

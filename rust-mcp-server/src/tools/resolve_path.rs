@@ -1,8 +1,11 @@
+use serde_json::{json, Map, Value};
 use std::env;
 use std::path::PathBuf;
-use serde_json::{json, Map, Value};
 
-pub async fn resolve_path(args: &Map<String, Value>, _state: &crate::AppState) -> Result<Value, String> {
+pub async fn resolve_path(
+    args: &Map<String, Value>,
+    _state: &crate::AppState,
+) -> Result<Value, String> {
     let name = args
         .get("name")
         .and_then(Value::as_str)
@@ -15,12 +18,17 @@ pub async fn resolve_path(args: &Map<String, Value>, _state: &crate::AppState) -
         "desktop" => dirs::desktop_dir(),
         "home" => dirs::home_dir(),
         "project" => env::var("JARVIS_PROJECT_ROOT").ok().map(PathBuf::from),
-        _ => return Err(format!("Unknown path name: {}. Supported: downloads, documents, desktop, home, project", name)),
+        _ => {
+            return Err(format!(
+                "Unknown path name: {}. Supported: downloads, documents, desktop, home, project",
+                name
+            ))
+        }
     };
 
     let resolved_path = path.ok_or_else(|| format!("Could not resolve path for: {}", name))?;
     let path_str = resolved_path.to_string_lossy().to_string();
-    
+
     if !resolved_path.exists() {
         return Err(format!("Path does not exist: {}", path_str));
     }
