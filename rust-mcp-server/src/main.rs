@@ -47,6 +47,7 @@ async fn main() {
         .route("/", get(root_info).post(jsonrpc))
         .route("/health", get(health))
         .route("/tools", get(list_tools_http))
+        .route("/mcp", post(jsonrpc))
         .route("/jsonrpc", post(jsonrpc))
         .with_state(state);
 
@@ -77,7 +78,7 @@ async fn root_info() -> impl IntoResponse {
         Json(json!({
             "status": "ok",
             "server": "jarvis-rust-mcp-server",
-            "endpoints": ["/health", "/tools", "/jsonrpc"]
+            "endpoints": ["/health", "/tools", "/mcp", "/jsonrpc"]
         })),
     )
 }
