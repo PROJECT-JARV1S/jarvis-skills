@@ -56,10 +56,17 @@ curl -X POST http://127.0.0.1:5050/jsonrpc ^
 
 This repo includes:
 
-- `mcp.json`
 - `.mcp.json`
 
-Both are configured for HTTP URLs by default.
+- `.mcp.json` is STDIO command-based (recommended for Copilot CLI / Gemini CLI local testing).
+
+Before using `.mcp.json`, build the Spotify server once:
+
+```bash
+cd ../spotify-mcp-server
+npm install
+npm run build
+```
 
 ## Troubleshooting
 

@@ -1,17 +1,20 @@
 {
   "mcpServers": {
     "jarvis-skills": {
-      "type": "http",
-      "url": "http://127.0.0.1:5050/mcp",
-      "tools": [
-        "*"
+      "command": "cargo",
+      "args": [
+        "run",
+        "--release",
+        "--manifest-path",
+        "rust-mcp-server/Cargo.toml",
+        "--",
+        "--stdio"
       ]
     },
     "spotify": {
-      "type": "http",
-      "url": "http://127.0.0.1:3000/mcp",
-      "tools": [
-        "*"
+      "command": "node",
+      "args": [
+        "../spotify-mcp-server/build/index.js"
       ]
     }
   }
